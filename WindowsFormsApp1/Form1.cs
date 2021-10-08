@@ -37,5 +37,35 @@ namespace WindowsFormsApp1
                     listBox1.Items.Add("접속상태:미연결");
             }
         }
+
+        private void label1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void search_button_Click(object sender, EventArgs e)
+        {
+            axKHOpenAPI1.SetInputValue("종목코드", stockcode_textbox.Text.Trim());
+            int nRet = axKHOpenAPI1.CommRqData("주식기본정보", "OPT10001", 0, "1001");
+            if (nRet == 0)
+                listBox1.Items.Add("주식 정보요청");
+            else
+                listBox1.Items.Add("주식 정보요청 실패");
+            axKHOpenAPI1.OnReceiveTrData += onReceiveTrData조회;
+        }
+
+        public void onReceiveTrData조회(object sender, AxKHOpenAPILib._DKHOpenAPIEvents_OnReceiveTrDataEvent e)
+        {
+            if (e.sRQName == "주식기본정보")
+            {
+                int nCnt = axKHOpenAPI1.GetRepeatCnt(e.sTrCode, e.sRQName);
+                for (int nIdx = 0; nIdx <= nCnt; nIdx++)
+                {
+                    listBox1.Items.Add("종목코드" + axKHOpenAPI1.GetCommData(e.sTrCode, e.sRQName, nIdx, "종목코드").Trim());
+                    listBox1.Items.Add("종목명" + axKHOpenAPI1.GetCommData(e.sTrCode, e.sRQName, nIdx, "종목명").Trim());
+                    stockname_label.Text = axKHOpenAPI1.GetCommData(e.sTrCode, e.sRQName, nIdx, "종목명").Trim();
+                }
+            }
+        }
     }
 }
